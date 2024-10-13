@@ -13,24 +13,21 @@ const LearnPage = async () => {
         userProgressData
     ])
 
-    if (!userProgress || !userProgress.activeCourseId) {
+    if (!userProgress || !userProgress.activeCourse) {
         redirect('/courses')
     }
     return (
         <div className="flex flex-row-reverse gap-12 px-6">
             <StickyWrapper>
                 <UserProgress
-                    activeCourse={{
-                        imageSrc: 'es.svg',
-                        title: 'spanis'
-                    }}
-                    hearts={5}
-                    points={1}
+                    activeCourse={userProgress.activeCourse}
+                    hearts={userProgress.hearts}
+                    points={userProgress.points}
                     hasActiveSubscription={false}
                 />
             </StickyWrapper>
             <FeedWrapper>
-                <Header title="Spanish" />
+                <Header title={userProgress.activeCourse.title} />
             </FeedWrapper>
         </div>
     )
