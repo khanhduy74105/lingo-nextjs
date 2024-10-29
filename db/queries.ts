@@ -133,7 +133,7 @@ export const getLesson = cache(async (id?: number) => {
     const courseProgress = await getCourseProgress();
 
     const lessonId = id || courseProgress?.activeLessonId;
-
+    console.log('lessonId', lessonId)
     if (!lessonId) {
         return null;
     }
@@ -152,6 +152,8 @@ export const getLesson = cache(async (id?: number) => {
             }
         }
     });
+
+    console.log('data lesson', data)
 
     if (!data || !data.challenges) {
         return null;
