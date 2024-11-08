@@ -2,25 +2,30 @@ import FeedWrapper from "@/components/feed-wrapper";
 import StickyWrapper from "@/components/sticky-wrapper";
 import { Header } from "./header";
 import { UserProgress } from "@/components/user-progress";
-import { getCourseProgress, getLessonPercentage, getUnits, getUserProgress } from "@/db/queries";
+import { getCourseProgress, getLessonPercentage, getUnits, getUserProgress, getUserSubcription } from "@/db/queries";
 import { redirect } from "next/navigation";
 import { Unit } from "./unit";
+import { Promo } from "@/components/promo";
+import { Quests } from "@/components/quests";
 
 const LearnPage = async () => {
     const userProgressData = getUserProgress();
     const courseProgressData = getCourseProgress();
     const lessonPercentageData = getLessonPercentage();
     const unitsData = getUnits();
+    const userSubscriptionData = getUserSubcription();
     const [
         userProgress,
         courseProgress,
         lessonPercentage,
-        units
+        units,
+        userSubscription
     ] = await Promise.all([
         userProgressData,
         courseProgressData,
         lessonPercentageData,
-        unitsData
+        unitsData,
+        userSubscriptionData
     ])
 
     if (!userProgress || !userProgress.activeCourse) {
@@ -30,6 +35,8 @@ const LearnPage = async () => {
     if (!courseProgress) {
         redirect('/courses')
     }
+
+    const isPro = !!userSubscription?.isActive
     return (
         <div className="flex flex-row-reverse gap-12 px-6">
             <StickyWrapper>
@@ -37,8 +44,10 @@ const LearnPage = async () => {
                     activeCourse={userProgress.activeCourse}
                     hearts={userProgress.hearts}
                     points={userProgress.points}
-                    hasActiveSubscription={false}
+                    hasActiveSubscription={!!userSubscription?.isActive}
                 />
+                {!isPro && <Promo />}
+                <Quests points={userProgress.points}/>
             </StickyWrapper>
             <FeedWrapper>
                 <Header title={userProgress.activeCourse.title} />

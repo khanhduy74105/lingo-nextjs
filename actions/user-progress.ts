@@ -1,8 +1,8 @@
 "use server"
 
-import { POINTs_TO_REFILL } from "@/app/(main)/shop/items"
+import { POINTs_TO_REFILL } from "@/constants"
 import db from "@/db/drizzle"
-import { getCourseById, getUserProgress } from "@/db/queries"
+import { getCourseById, getUserProgress, getUserSubcription } from "@/db/queries"
 import { challengeProgress, challenges, userProgress } from "@/db/schema"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { and, eq } from "drizzle-orm"
@@ -23,6 +23,9 @@ export const upsertUserProgress = async (courseId: number) => {
     }
 
     // TOdo : enable once units and lessons are added
+    if (!course.units.length || !course.units[0].lessons.length) {
+        throw new Error("Course is empty")
+    }
 
     const existingUserProgress = await getUserProgress()
 
@@ -67,6 +70,7 @@ export const reduceHeart = async (challengeId: number) => {
     const lessonId = challenge.lessonId
 
     const currentUserProgress = await getUserProgress()
+    const userSubscription = await getUserSubcription()
 
     const existingChallengeProgress = await db.query.challengeProgress.findFirst({
         where: and(
@@ -83,6 +87,10 @@ export const reduceHeart = async (challengeId: number) => {
 
     if (!currentUserProgress) {
         throw new Error('User progress not found')
+    }
+
+    if (userSubscription?.isActive) {
+        return { error: 'subscription'}
     }
 
     if (currentUserProgress.hearts === 0) {
